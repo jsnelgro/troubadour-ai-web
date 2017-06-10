@@ -1,0 +1,23 @@
+{
+  "name": "troubadour.ai",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "draft-js": "^0.10.1",
+    "react": "15.5.4",
+    "react-cursor-position": "^2.1.0",
+    "react-dom": "15.5.4",
+    "react-quill": "^1.0.0-rc.2",
+    "react-textarea-autosize": "^5.0.6",
+    "textarea-caret-position": "^0.1.1"
+  },
+  "devDependencies": {
+    "react-scripts": "1.0.7"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  }
+}

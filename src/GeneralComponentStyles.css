@@ -1,0 +1,69 @@
+.narrow-input {
+  min-width: 200px;
+  max-width: 50%;
+}
+
+.text-input-wrapper {
+  width: 100%;
+  /*padding-top: 33px;*/
+  padding-bottom: 25px;
+}
+
+.ql-editor p {
+  font-size: 1.25em;
+}
+
+.text-input-wrapper input, textarea, .ql-editor {
+  border: none;
+  padding: 25px;
+  width: 100%;
+  text-align: left;
+  border-radius: 2px;
+  font-size: 1em;
+  background: hsl(196, 98%, 45%);
+  color: white;
+}
+
+.text-input-wrapper .ql-editor {
+  border-left: 1px solid transparent;
+  position:relative;
+  z-index:1
+}
+
+.text-input-wrapper input::placeholder, textarea::placeholder, .ql-editor::placeholder, .ql-editor.ql-blank::before {
+  color: white;
+  font-size: 1rem;
+  font-style: normal;
+}
+
+.text-input-wrapper input:focus, textarea:focus, .ql-editor:focus {
+  outline: none;
+  border-bottom: 1px solid white;
+  background: hsl(196, 98%, 46%);
+}
+
+.get-btn {
+  border: none;
+  padding: 20px;
+  text-align: center;
+  border-radius: 2px;
+  font-size: 0.75rem;
+  background: hsl(196, 80%, 46%);
+  color: white;
+  margin: 12px;
+  border-top: 1px solid hsl(196, 98%, 75%);
+}
+
+.get-btn:hover {
+  cursor: pointer;
+  background: hsl(196, 98%, 46%);
+}
+
+.get-btn:focus {
+  outline: none;
+}
+
+.get-btn:active {
+  animation: 1s;
+  border: none;
+}
