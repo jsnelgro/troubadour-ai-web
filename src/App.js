@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
 import logo from './logos/phono1.svg';
-import ResizeTextArea from 'react-textarea-autosize'
 import LyricsEditor from './LyricsEditor.js'
 import './App.css';
 import './GeneralComponentStyles.css'
 /**
  * TODO:
- * [ ] autosuggest author name from 
+ * [ ] autosuggest author name from
  * [ ] longpress on mobile to bring up word/line/verse/song list
  * [ ] keyboard shortcut
  */
@@ -16,7 +15,6 @@ class App extends Component {
     this.state = {}
   }
   render() {
-    const {styles} = this.props
     return (
       <div className="App">
         <div className="App-header">

@@ -1,16 +1,49 @@
 import React, { Component } from 'react'
-// import Draft, { Editor, EditorState, ContentState, Modifier } from 'draft-js';
-// import 'draft-js/dist/Draft.css';
-// import ReactQuill from 'react-quill'
-// import 'react-quill/dist/quill.core.css'
+import PropTypes from 'prop-types'
 import ResizeTextArea from 'react-textarea-autosize'
-import CursorPosition from 'react-cursor-position'
-import LyricWriter from './LyricWriter.js'
+// import CursorPosition from 'react-cursor-position'
+import { Shortcuts, ShortcutManager } from 'react-shortcuts'
+import { state, setLyrics, setFetchingIndicator, getAILyrics, undoLyrics, redoLyrics, setSelection} from './LyricsEditorState.js'
+
+const keymap = {
+  LyricsEditor: {
+    UNDO: 'command+z',
+    REDO: 'command+shift+z'
+  }
+}
+const shortcutManager = new ShortcutManager(keymap)
 
 class LyricsEditor extends Component {
   constructor (props) {
     super(props)
-    this.state = { lyrics: '', title: '', artist: ''}
+    this.state = state
+
+    this._handleShortcuts = (action, event) => {
+      switch (action) {
+        case 'UNDO':
+          event.preventDefault()
+          this.setState(undoLyrics)
+          break
+        case 'REDO':
+          event.preventDefault()
+          this.setState(redoLyrics)
+          break
+        default:
+          break
+      }
+    }
+
+    // HACK: why is there no onSelectionChange callback for textareas?!?!?!?!
+    let getSelection = () => {
+      if (!this.refs.lyricsField) { return }
+      let editor = this.refs.lyricsField._rootDOMNode
+      this.setState(setSelection(editor))
+    }
+    setInterval(getSelection, 100)
+  }
+
+  getChildContext () {
+    return { shortcuts: shortcutManager }
   }
 
   showOptions = (ev) => {
@@ -18,48 +51,21 @@ class LyricsEditor extends Component {
   }
 
   setLyrics = (lyrics) => {
-    this.setState({ lyrics })
+    this.setState(setLyrics(lyrics))
   }
 
-  onChangeLyrics = (ev) => {
-    this.setLyrics(ev.target.value)
-  }
-
-  getNetworkResponse = (type, cb) => {
-    let { artist, title, lyrics } = this.state
-    LyricWriter.getLyric(artist, title, lyrics, type).then(({ song }) => {
-        song = LyricWriter.parseLyric(lyrics, song)
-        if (typeof cb === 'function') { cb(song) }
-    })
-  }
-
-  getWord = () => {
-    this.getNetworkResponse('word', (song) => {
-      this.setLyrics(song)
-    })
-  }
-  getLine = () => {
-    this.getNetworkResponse('line', (song) => {
-      this.setLyrics(song)
-    })
-  }
-  getVerse = () => {
-    this.getNetworkResponse('verse', (song) => {
-      this.setLyrics(song)
-    }) 
-  }
-  getSong = () => {
-    this.getNetworkResponse('song', (song) => {
-      this.setLyrics(song)
-    })
+  requestLyrics = async (type) => {
+    this.setState(setFetchingIndicator(true))
+    let lyrics = await getAILyrics(this.state, type)
+    this.setState(lyrics)
+    this.setState(setFetchingIndicator(false))
   }
 
   setArtist = (ev) => { this.setState({ artist: ev.target.value }) }
   setTitle = (ev) => { this.setState({ title: ev.target.value }) }
 
   render () {
-    const { styles } = this.props
-    const { artist, title, lyrics } = this.state
+    const { artist, isFetching, title, lyrics } = this.state
     return (<div className="text-input-wrapper">
       <div className="text-input-wrapper narrow-input">
         <input value={title} onChange={this.setTitle} type="text" placeholder="title..." />
@@ -67,79 +73,31 @@ class LyricsEditor extends Component {
       <div className="text-input-wrapper narrow-input">
         <input value={artist} onChange={this.setArtist} type="text" placeholder="author (or in the style of)..." />
       </div>
-      <ResizeTextArea
-        value={lyrics}
-        onChange={this.onChangeLyrics}
-        minRows={6}
-        placeholder="lyrics..."
-        ref="lyricEditor"
-      ></ResizeTextArea>
-      <button className="get-btn" onClick={this.getWord}>get word</button>
-      <button className="get-btn" onClick={this.getLine}>get line</button>
-      <button className="get-btn" onClick={this.getVerse}>get verse</button>
-      <button className="get-btn" onClick={this.getSong}>get song</button>
+      <Shortcuts
+        alwaysFireHandler stopPropagation
+        name='LyricsEditor' handler={this._handleShortcuts}>
+        <ResizeTextArea
+          disabled={isFetching}
+          value={lyrics}
+          onChange={({target}) => this.setLyrics(target.value)}
+          minRows={6}
+          placeholder="lyrics..."
+          ref="lyricsField"
+        / >
+      </Shortcuts>
+      <div>
+        {/*{isFetching ? ''}*/}
+      </div>
+      <button className="get-btn" onClick={_ => this.requestLyrics('word')}>get word</button>
+      <button className="get-btn" onClick={_ => this.requestLyrics('line')}>get line</button>
+      <button className="get-btn" onClick={_ => this.requestLyrics('verse')}>get verse</button>
+      <button className="get-btn" onClick={_ => this.requestLyrics('song')}>get song</button>
     </div>)
   }
 }
 
-// LyricsEditor.defaultProps = {
-//   styles: {
-//     root: {
-//       width: '80%',
-//       margin: '0 auto'
-//     },
-//     editor: {
-//       borderBottom: '1px solid white',
-//       cursor: 'text',
-//       minHeight: 80,
-//       padding: 10
-//     }
-//   }
-// }
+LyricsEditor.childContextTypes = {
+  shortcuts: PropTypes.object.isRequired
+}
 
-/**
- * non draft-js render attempt :(
-   render () {
-    return (<div>
-      <CursorPosition
-        shouldDecorateChildren={false}
-        onActivationChanged={this.showOptions}
-        isActivatedOnTouch={true}
-      >
-      <ResizeTextArea
-        value={this.state.value}
-        onChange={this.onChange}
-        minRows={6}
-        ref='input'
-        placeholder="lyrics..."
-      />
-      </CursorPosition>
-      <button onClick={this.getWord}>get word</button>
-      <button onClick={this.getLine}>get line</button>
-      <button onClick={this.getVerse}>get verse</button>
-      <button onClick={this.getSong}>get song</button>
-    </div>)
-  }
- */
-
-/**
- * attempted render method for that stupid draft-js library
- render() {
-    const {styles} = this.props
-    return (
-      <div style={styles.root}>
-        <div style={styles.editor}>
-          <Editor
-            className="text-input-wrapper"
-            editorState={this.state.editorState}
-            onChange={this.onChange}
-            placeholder="lyrics..."
-            ref="editor"
-          />
-        </div>
-      </div>
-    )
- }
- */
-
-export default LyricsEditor;
+export default LyricsEditor
