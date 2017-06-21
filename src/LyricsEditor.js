@@ -3,7 +3,8 @@ import PropTypes from 'prop-types'
 import ResizeTextArea from 'react-textarea-autosize'
 // import CursorPosition from 'react-cursor-position'
 import { Shortcuts, ShortcutManager } from 'react-shortcuts'
-import { state, setLyrics, setFetchingIndicator, getAILyrics, undoLyrics, redoLyrics, setSelection} from './LyricsEditorState.js'
+import { state, persistState, loadState, setLyrics, setFetchingIndicator, getAILyrics, undoLyrics, redoLyrics, setSelection} from './LyricsEditorState.js'
+import addressbar from 'addressbar'
 
 const keymap = {
   LyricsEditor: {
@@ -16,8 +17,18 @@ const shortcutManager = new ShortcutManager(keymap)
 class LyricsEditor extends Component {
   constructor (props) {
     super(props)
-    this.state = state
-
+    this.state = (props.songID ?
+      Object.assign({}, state, props, {isFetching: true}) :
+      state
+    )
+    if (props.songID) {
+      loadState(this.state.songID).then((res) => {
+        if (res) {
+          let {title, artist, lyrics} = res
+          this.setState({artist, title, lyrics, isFetching: false})
+        }
+      })
+    }
     this._handleShortcuts = (action, event) => {
       switch (action) {
         case 'UNDO':
@@ -32,7 +43,6 @@ class LyricsEditor extends Component {
           break
       }
     }
-
     // HACK: why is there no onSelectionChange callback for textareas?!?!?!?!
     let getSelection = () => {
       if (!this.refs.lyricsField) { return }
@@ -40,6 +50,14 @@ class LyricsEditor extends Component {
       this.setState(setSelection(editor))
     }
     setInterval(getSelection, 100)
+  }
+
+  componentDidUpdate (prevProps, prevState) {
+    let {songID, title, artist, lyrics} = prevState
+    if (lyrics !== '') {
+      addressbar.value = '/song/' + this.state.songID
+      persistState(songID, {title, artist, lyrics})
+    }
   }
 
   getChildContext () {

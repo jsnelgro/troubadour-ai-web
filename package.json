@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "addressbar": "^1.0.3",
     "draft-js": "^0.10.1",
+    "firebase": "^4.1.2",
     "prop-types": "^15.5.10",
     "react": "15.5.4",
     "react-cursor-position": "^2.1.0",
@@ -11,7 +13,8 @@
     "react-quill": "^1.0.0-rc.2",
     "react-shortcuts": "^1.5.0",
     "react-textarea-autosize": "^5.0.6",
-    "textarea-caret-position": "^0.1.1"
+    "textarea-caret-position": "^0.1.1",
+    "uuid": "^3.1.0"
   },
   "devDependencies": {
     "react-scripts": "1.0.7"

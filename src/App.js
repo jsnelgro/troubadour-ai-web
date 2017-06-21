@@ -1,8 +1,10 @@
-import React, { Component } from 'react';
-import logo from './logos/phono1.svg';
+import React, { Component } from 'react'
+import logo from './logos/phono1.svg'
 import LyricsEditor from './LyricsEditor.js'
-import './App.css';
+import './App.css'
 import './GeneralComponentStyles.css'
+import addressbar from 'addressbar'
+
 /**
  * TODO:
  * [ ] autosuggest author name from
@@ -12,7 +14,17 @@ import './GeneralComponentStyles.css'
 class App extends Component {
   constructor (props) {
     super(props)
-    this.state = {}
+    let [_, key, id] = addressbar.pathname.split('/')
+    // check url for songID.
+    // get song info from firebase if there's an ID.
+    // pass all db stuff into lyrics writer
+    this.state = (key === 'song' ?
+      {songID: id} :
+      {songID: false}
+    )
+    addressbar.addEventListener('change', (e) => {
+      e.preventDefault()
+    })
   }
   render() {
     return (
@@ -26,7 +38,7 @@ class App extends Component {
         </p>
         <div className="text-inputs">
           <div className="text-input-wrapper">
-            <LyricsEditor />
+            <LyricsEditor songID={this.state.songID} />
           </div>
         </div>
       </div>

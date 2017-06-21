@@ -1,6 +1,9 @@
 import LyricWriter from './LyricWriter.js'
+import { saveSong, loadSong } from './db.js'
+import uuid from 'uuid'
 
 export let state = {
+  songID: uuid(),
   isFetching: false,
   lyricsHistoryIndex: 0,
   lyricsHistory: [''],
@@ -88,4 +91,13 @@ export async function getAILyrics(state, type) {
   }
   song = (song + post_text).trim()
   return setLyrics(song, true)
+}
+
+export function persistState(id, state, fn) {
+  saveSong(id, state)
+  return fn
+}
+
+export async function loadState(id) {
+  return await loadSong(id)
 }
