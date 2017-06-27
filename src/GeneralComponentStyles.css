@@ -67,3 +67,24 @@
   animation: 1s;
   border: none;
 }
+
+.my-checkbox {
+	width: 25px;
+  /*margin: 0 15px;*/
+  display: inline;
+	/*margin: 20px 100px;*/
+	/*position: relative;*/
+}
+
+.my-checkbox span {
+  padding: 5px;
+}
+
+@keyframes color_change {
+	from { background-color: hsl(196, 98%, 45%); }
+	to { background-color: hsl(196, 98%, 38%); }
+}
+
+.color-ebb-ani {
+	animation: color_change 1s infinite alternate;
+}

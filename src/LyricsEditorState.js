@@ -1,10 +1,12 @@
 import LyricWriter from './LyricWriter.js'
 import { saveSong, loadSong } from './db.js'
 import uuid from 'uuid'
+import ProfanityFilter from 'bad-words'
 
 export let state = {
   songID: uuid(),
   isFetching: false,
+  filterProfanity: true,
   lyricsHistoryIndex: 0,
   lyricsHistory: [''],
   lastUndoUpdate: Date.now(),
@@ -13,6 +15,26 @@ export let state = {
   selection: [0, 0],
   lyrics: '', title: '', artist: ''
 }
+
+const wordReplacementMap = {
+  nigga: 'brotha',
+  nigger: 'brother',
+  niggas: 'brothas',
+  niggers: 'brothers',
+  santa: 'baby',
+  christmas: 'day',
+  holly: 'happy',
+  jolly: 'happy'
+
+}
+function replaceAll(str, mapObj) {
+  let re = new RegExp(Object.keys(mapObj).join("|"), "gi")
+  return str.replace(re, function (matched) {
+    return mapObj[matched.toLowerCase()]
+  })
+}
+
+const profanityFilter = new ProfanityFilter({ placeHolder: 'o' })
 
 export function setLyrics(updatedLyrics, forceUndoUpdate = false) {
   return (state, props) => {
@@ -90,6 +112,9 @@ export async function getAILyrics(state, type) {
       break;
   }
   song = (song + post_text).trim()
+  if (state.filterProfanity) {
+    song = profanityFilter.clean(replaceAll(song, wordReplacementMap))
+  }
   return setLyrics(song, true)
 }
 

@@ -1,3 +1,6 @@
+firebase url:
+https://console.firebase.google.com/u/0/project/troubadour-2e3fd/database/data
+
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 
 Below you will find some information on how to perform common tasks.<br>

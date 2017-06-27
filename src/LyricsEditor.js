@@ -3,8 +3,10 @@ import PropTypes from 'prop-types'
 import ResizeTextArea from 'react-textarea-autosize'
 // import CursorPosition from 'react-cursor-position'
 import { Shortcuts, ShortcutManager } from 'react-shortcuts'
-import { state, persistState, loadState, setLyrics, setFetchingIndicator, getAILyrics, undoLyrics, redoLyrics, setSelection} from './LyricsEditorState.js'
+import { state, persistState, loadState, setLyrics, setFetchingIndicator, getAILyrics, undoLyrics, redoLyrics, setSelection } from './LyricsEditorState.js'
 import addressbar from 'addressbar'
+import 'rc-checkbox/assets/index.css'
+import Checkbox from 'rc-checkbox'
 
 const keymap = {
   LyricsEditor: {
@@ -15,17 +17,17 @@ const keymap = {
 const shortcutManager = new ShortcutManager(keymap)
 
 class LyricsEditor extends Component {
-  constructor (props) {
+  constructor(props) {
     super(props)
     this.state = (props.songID ?
-      Object.assign({}, state, props, {isFetching: true}) :
+      Object.assign({}, state, props, { isFetching: true }) :
       state
     )
     if (props.songID) {
       loadState(this.state.songID).then((res) => {
         if (res) {
-          let {title, artist, lyrics} = res
-          this.setState({artist, title, lyrics, isFetching: false})
+          let { title, artist, lyrics } = res
+          this.setState({ artist, title, lyrics, isFetching: false })
         }
       })
     }
@@ -52,15 +54,15 @@ class LyricsEditor extends Component {
     setInterval(getSelection, 100)
   }
 
-  componentDidUpdate (prevProps, prevState) {
-    let {songID, title, artist, lyrics} = prevState
+  componentDidUpdate(prevProps, prevState) {
+    let { songID, title, artist, lyrics } = prevState
     if (lyrics !== '') {
       addressbar.value = '/song/' + this.state.songID
-      persistState(songID, {title, artist, lyrics})
+      persistState(songID, { title, artist, lyrics })
     }
   }
 
-  getChildContext () {
+  getChildContext() {
     return { shortcuts: shortcutManager }
   }
 
@@ -79,29 +81,35 @@ class LyricsEditor extends Component {
     this.setState(setFetchingIndicator(false))
   }
 
+  toggleProfanityFilter = () => {
+    this.setState((s) => {
+      return { filterProfanity: !s.filterProfanity }
+    })
+  }
   setArtist = (ev) => { this.setState({ artist: ev.target.value }) }
   setTitle = (ev) => { this.setState({ title: ev.target.value }) }
 
-  render () {
-    const { artist, isFetching, title, lyrics } = this.state
+  render() {
+    const { artist, isFetching, title, lyrics, filterProfanity } = this.state
     return (<div className="text-input-wrapper">
       <div className="text-input-wrapper narrow-input">
-        <input value={title} onChange={this.setTitle} type="text" placeholder="title..." />
+        <input className={isFetching ? 'color-ebb-ani' : null} disabled={isFetching} value={title} onChange={this.setTitle} type="text" placeholder="title..." />
       </div>
       <div className="text-input-wrapper narrow-input">
-        <input value={artist} onChange={this.setArtist} type="text" placeholder="author (or in the style of)..." />
+        <input className={isFetching ? 'color-ebb-ani' : null} disabled={isFetching} value={artist} onChange={this.setArtist} type="text" placeholder="author (or in the style of)..." />
       </div>
       <Shortcuts
         alwaysFireHandler stopPropagation
         name='LyricsEditor' handler={this._handleShortcuts}>
         <ResizeTextArea
+          className={isFetching ? 'color-ebb-ani' : null}
           disabled={isFetching}
           value={lyrics}
-          onChange={({target}) => this.setLyrics(target.value)}
+          onChange={({ target }) => this.setLyrics(target.value)}
           minRows={6}
           placeholder="lyrics..."
           ref="lyricsField"
-        / >
+        />
       </Shortcuts>
       <div>
         {/*{isFetching ? ''}*/}
@@ -110,6 +118,15 @@ class LyricsEditor extends Component {
       <button className="get-btn" onClick={_ => this.requestLyrics('line')}>get line</button>
       <button className="get-btn" onClick={_ => this.requestLyrics('verse')}>get verse</button>
       <button className="get-btn" onClick={_ => this.requestLyrics('song')}>get song</button>
+      <div className="my-checkbox">
+        <Checkbox
+          checked={filterProfanity}
+          onChange={this.toggleProfanityFilter}
+        />
+        {/*<input checked={filterProfanity} type="checkbox" id="my-checkbox-input" name="" />
+        <label onChange={this.toggleProfanityFilter} for="my-checkbox-input"></label>*/}
+        {String('filter profanity')}
+      </div>
     </div>)
   }
 }
