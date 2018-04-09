@@ -5,12 +5,6 @@ import './App.css'
 import './GeneralComponentStyles.css'
 import addressbar from 'addressbar'
 
-/**
- * TODO:
- * [ ] autosuggest author name from
- * [ ] longpress on mobile to bring up word/line/verse/song list
- * [ ] keyboard shortcut
- */
 class App extends Component {
   constructor (props) {
     super(props)

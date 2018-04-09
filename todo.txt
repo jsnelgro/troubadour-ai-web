@@ -1,0 +1,4 @@
+longpress on mobile to bring up word/line/verse/song list
+autosuggest author name
+save/load (have persistence wired up) +shortcuts
+x undo/redo +shortcuts
